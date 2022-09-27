@@ -1,17 +1,17 @@
 const path = require('path'); //in order to resolve paths properly across different OS
 module.exports = {
-    entry: path.resolve(__dirname, './src/index.js'),
+    entry: path.resolve(__dirname, './src/index.tsx'),
     module: {
         rules: [
             {
-                test: /\.(js|jsx)$/,
+                test: /\.(ts|tsx)$/,
                 exclude: /node_modules/,
-                use: ['babel-loader'],
-            },
+                loader: 'ts-loader'
+            }
         ],
     },
     resolve: {
-        extensions: ['*', '.js', '.jsx'],
+        extensions: ['*', '.tsx', '.ts', '.js'],
     },
     output: {
         path: path.resolve(__dirname, './dist'),

@@ -158,9 +158,12 @@
             ...
             plugins: [new webpack.HotModuleReplacementPlugin()],
             devServer: {
-                static: path.resolve(__dirname, './dist'),
-                hot: true,
+                static: {
+                    directory: path.join(__dirname, 'public'),
                 },
+                port: 3000,
+                hot: true
+            }
             ...
         }
         ```
@@ -176,6 +179,59 @@
         root.render(<App />)
         module.hot.accept();
         ```
+5. Add TypeScript (Optional)
+    1. run this command in root directory 
+    ```bash
+    yarn add -D typescript ts-loader @types/node @types/react @types/react-dom @types/webpack-env
+    ```
+    2. In root directory create `tsconfig.json` and add following
+    ```json
+    {
+        "compilerOptions": {
+            "outDir": "./dist/",
+            "noImplicitAny": true,
+            "module": "es6","target": "es5",
+            "jsx": "react",
+            "allowJs": true,
+            "allowSyntheticDefaultImports": true,
+            "moduleResolution": "Node"
+        }
+    }
+    ```
+    3. In `webpack.config.js` update as following
+    ```json
+    //before
+    entry: path.resolve(__dirname, './src/index.js'),
+    module: {
+        rules: [
+            {
+                test: /\.(js|jsx)$/,
+                exclude: /node_modules/,
+                use: ['babel-loader'],
+            },
+        ],
+    },
+    resolve: {
+        extensions: ['*', '.js', '.jsx'],
+    },
+    ```
+    ```json 
+    // after
+    entry: path.resolve(__dirname, './src/index.tsx'),
+    module: {
+        rules: [
+            {
+                test: /\.(ts|tsx)$/,
+                exclude: /node_modules/,
+                loader: 'ts-loader'
+            }
+        ],
+    },
+    resolve: {
+        extensions: ['*', '.tsx', '.ts', '.js'],
+    },
+    ```
+
 
  ## References:
  - https://babeljs.io/docs/en/
