@@ -60,9 +60,10 @@
         yarn add -D webpack webpack-dev-server webpack-cli
         ```
     3. Open package.json and add following:
-		```json 
+		```json
         "scripts": {
-		"start": "webpack serve --config ./webpack.config.js --mode development"
+            "start": "webpack serve --config ./webpack.config.js --mode development",
+            "build": "webpack --config ./webpack.config.js --mode production"
         }
 		```
     4. In root create `webpack.config.js` and add
@@ -74,8 +75,11 @@
                 path: path.resolve(__dirname, './dist'),
                 filename: 'bundle.js'
             },
-            devServer: {
-                static: path.resolve(__dirname, './dist')
+           devServer: {
+                static: {
+                    directory: path.join(__dirname, 'public'),
+                },
+                port: 3000
             }
         };
         ```
