@@ -199,7 +199,7 @@
     }
     ```
     3. In `webpack.config.js` update as following
-    ```json
+    ```js
     //before
     entry: path.resolve(__dirname, './src/index.js'),
     module: {
@@ -215,7 +215,7 @@
         extensions: ['*', '.js', '.jsx'],
     },
     ```
-    ```json 
+    ```js 
     // after
     entry: path.resolve(__dirname, './src/index.tsx'),
     module: {
