@@ -128,6 +128,7 @@
     3. Create following file `src/App.jsx` and add
         ```jsx
         import React from 'react';
+
         export default function App() {
             return <h1>
             React with Webpack5
@@ -140,10 +141,9 @@
        import * as ReactDOM from 'react-dom/client';
        import App from './App';
        
-       const root = ReactDOM.createRoot(
-        document.getElementById('app')
-        );
-        root.render(<App />)
+       const container = document.getElementById('app');
+       const root = ReactDOM.createRoot(container);
+       root.render(<App />)
         ```
     4. Adding Hot Module Replacement
         1. install `react-hot-loader` as dev dependency
@@ -173,66 +173,147 @@
        import * as ReactDOM from 'react-dom/client';
        import App from './App';
        
-       const root = ReactDOM.createRoot(
-        document.getElementById('app')
+       const container = document.getElementById('app');
+       const root = ReactDOM.createRoot(container);
+       root.render(<App />)
+       module.hot.accept();
+        ```
+- Following are optional steps for adding TS, SCSS and some Optimization
+5. Add TypeScript
+    1. run this command in root directory 
+        ```bash
+        yarn add -D typescript ts-loader @types/node @types/react @types/react-dom @types/webpack-env
+        ```
+    2. In root directory create `tsconfig.json` and add following
+        ```json
+        {
+            "compilerOptions": {
+                "outDir": "./dist/",
+                "noImplicitAny": true,
+                "module": "esnext",
+                "target": "es5",
+                "jsx": "react",
+                "allowJs": true,
+                "allowSyntheticDefaultImports": true,
+                "moduleResolution": "Node"
+            }
+        }
+        ```
+    3. Change file types from js. jsx to ts, tsx and update `webpack.config.js` as following
+        ```js
+        //before
+        entry: path.resolve(__dirname, './src/index.js'),
+        module: {
+            rules: [
+                {
+                    test: /\.(js|jsx)$/,
+                    exclude: /node_modules/,
+                    use: ['babel-loader'],
+                },
+            ],
+        },
+        resolve: {
+            extensions: ['*', '.js', '.jsx'],
+        },
+        ```
+        ```js 
+        // after
+        entry: path.resolve(__dirname, './src/index.tsx'),
+        module: {
+            rules: [
+                {
+                    test: /\.(ts|tsx)$/,
+                    exclude: /node_modules/,
+                    loader: 'ts-loader'
+                }
+            ],
+        },
+        resolve: {
+            extensions: ['.tsx', '.ts', '.js'],
+        },
+        ```
+6. Add SCSS
+    1. install following as dev dependencies
+        ```bash
+        yarn add -D sass-loader node-sass style-loader css-loader
+        ```
+    2. Add following to `webpack.config.js`
+        ```js
+        ...
+        module.exports = {
+            ...
+            module: {
+                rules: [
+                    ...
+                    {
+                        test: /\.(scss|css|sass)$/,
+                        use: ['style-loader', 'css-loader', 'sass-loader'],
+                    },
+                ],
+            },
+            ...
+        };
+        ```
+    3. Create a new file `src/style.scss` and add following
+        ```scss
+        h1 {
+            color: red;
+            &:hover {
+                color: blue;
+            }
+        }
+        ```
+    4. In `src/index.tsx` import `style.scss`
+7. Add optimization by enabling dyamic imports
+    1. Add following webpack plugin to inject dyynamic bundle scripts into html
+        ```bash
+        yarn add -D html-webpack-plugin
+        ```
+    2. Make following changes in `webpack.config,js`
+        ```js
+        const HtmlWebpackPlugin = require('html-webpack-plugin');
+        
+        ...
+        output: {
+            path: path.resolve(__dirname, './dist'),
+            filename: '[name].bundle.js'
+        },
+        plugins: [
+            new HtmlWebpackPlugin({
+                template: path.resolve(__dirname, "public", "index.html")
+            }),
+            new webpack.HotModuleReplacementPlugin()
+        ],
+        ...
+        ```
+    3. Create new file `src/SubTitle.tsx`
+        ```tsx
+        import React from 'react';
+
+        export default function SubTitle() {
+            return <h2>Sub title</h2>
+        }
+        ```
+    4. update `src/index.tsx` as following
+        ```tsx
+        import React, { Suspense } from 'react';
+        import * as ReactDOM from 'react-dom/client';
+        import App from './App';
+        import './style.scss';
+        
+        const SubTitle = React.lazy(() => import("./SubTitle"));
+        
+        const container = document.getElementById('app')
+        const root = ReactDOM.createRoot(container);
+        root.render(
+            <Suspense fallback={<div>Loading...</div>}>
+                <App />
+                <SubTitle />
+            </Suspense>
         );
-        root.render(<App />)
         module.hot.accept();
         ```
-5. Add TypeScript (Optional)
-    1. run this command in root directory 
-    ```bash
-    yarn add -D typescript ts-loader @types/node @types/react @types/react-dom @types/webpack-env
-    ```
-    2. In root directory create `tsconfig.json` and add following
-    ```json
-    {
-        "compilerOptions": {
-            "outDir": "./dist/",
-            "noImplicitAny": true,
-            "module": "es6","target": "es5",
-            "jsx": "react",
-            "allowJs": true,
-            "allowSyntheticDefaultImports": true,
-            "moduleResolution": "Node"
-        }
-    }
-    ```
-    3. In `webpack.config.js` update as following
-    ```js
-    //before
-    entry: path.resolve(__dirname, './src/index.js'),
-    module: {
-        rules: [
-            {
-                test: /\.(js|jsx)$/,
-                exclude: /node_modules/,
-                use: ['babel-loader'],
-            },
-        ],
-    },
-    resolve: {
-        extensions: ['*', '.js', '.jsx'],
-    },
-    ```
-    ```js 
-    // after
-    entry: path.resolve(__dirname, './src/index.tsx'),
-    module: {
-        rules: [
-            {
-                test: /\.(ts|tsx)$/,
-                exclude: /node_modules/,
-                loader: 'ts-loader'
-            }
-        ],
-    },
-    resolve: {
-        extensions: ['*', '.tsx', '.ts', '.js'],
-    },
-    ```
-
-
+    5. Remove `<script>` tag from `public/index.html`
  ## References:
  - https://babeljs.io/docs/en/
 - https://webpack.js.org/
